@@ -1,0 +1,10 @@
+[Unit]
+Description=Consumer Patients.
+
+[Service]
+Type=simple
+User=ubuntu
+ExecStart=/usr/bin/python3 /home/ubuntu/consumer-patients/main.py
+
+[Install]
+WantedBy=multi-user.target
