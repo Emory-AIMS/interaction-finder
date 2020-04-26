@@ -20,13 +20,16 @@ S3_BUCKET_INTERACTION = ''
 # MySql host
 MYSQL_HOST = ''
 # MySql port (set default as 3306)
-MYSQL_PORT = 
+MYSQL_PORT = 0
 # MySql database name
 MYSQL_DB_NAME = ''
 # MySql username
 MYSQL_USER = ''
 # MySql password
 MYSQL_PASSWORD = ''
+
+
+
 
 def get_s3_bucket_name():
     return S3_BUCKET_INTERACTION
@@ -51,14 +54,18 @@ def get_db_password():
         return sys.argv[2]
     return MYSQL_PASSWORD
 
+
 def get_db_host():
     return MYSQL_HOST
+
 
 def get_db_port():
     return MYSQL_PORT
 
+
 def get_db_name():
     return MYSQL_DB_NAME
+
 
 def get_timestamp_format_string():
     return '%Y-%m-%dT%H:%M:%S'
@@ -74,3 +81,7 @@ def get_status_infected():
 
 def get_status_healed():
     return 3
+
+
+def get_number_processes():
+    return 8
