@@ -54,7 +54,11 @@ Open `consumer-patients.service` and edit the `user` value with the name of the 
 
 In order to set `consumer-patients.service` as systemctl service, create a symlink of our service
 ```bash
-sudo ln -s ./consumer-patients.service /etc/systemd/system/consumer-patients.service
+sudo ln -s ~/interaction-finder/consumer-patients.service /etc/systemd/system/consumer-patients.service
+```
+Go to system directory:
+```bash
+cd /etc/systemd/system/
 ```
 Start the service:
 ```bash
