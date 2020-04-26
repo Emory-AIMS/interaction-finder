@@ -26,9 +26,9 @@ This has been done in `periodic_check_infected.periodic_new_infected_interaction
 - [Boto 3](https://boto3.amazonaws.com/v1/documentation/api/latest/index.html)
 
 ## Step 1 - Download repository
-Download repository
+Download repository (we will put it on ~/log-processor folder)
 ```bash
-git clone https://gitlab.com/coronavirus-outbreak-control/interaction-finder
+git clone https://gitlab.com/coronavirus-outbreak-control/interaction-finder ~/log-processor
 ```
 
 ## Step 2 - Config.py
