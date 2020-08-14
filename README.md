@@ -1,14 +1,14 @@
 # How it works
 
 - The consumer is in charge to look for interacted devices and prepare the notification body to send to each device.
-- The consumer make a polling on the `doctors infeced` queue.
+- The consumer make a polling on the `status-update` queue.
 - The consumer write notifications body in the `potential-infected-notification` queue.
-- The consumer write input messages in the `doctor-infected-dead-letter` queue in case of exceptions.
+- The consumer write input messages in the `status-update-dead-letter` queue in case of exceptions.
 - The body of the input queue has the following format: `{"device_id": 123, "status": 1}`.
 - The body of the input queue has the following format: `{"round": {"previous_round": 1, "max_round": 2, "deduplication_id": "round_1696", "ids_timestamp": {"1696": 1586167911, "1509": 1586168119, "1554": 1586127477}}}` when looking at interactions after the first level of closeness.
 - The body of the input queue has the following format: `{"recurrent": {"device_ids": [123, 234, 345], "timestamp_min_unix": 1586127477}}` when looking for interactions of already infected detected devices.
 - Every update of status arrives here, any status different from `infected` (1) and `healed` (3) is ignored.
-- Every infected or healed device in input will receive a notification with the status update.
+<!-- - Every infected or healed device in input will receive a notification with the status update. -->
 - For every infected device we look for his interactions based on the filters set by virologists, the device will receive a notification.
 
 ### Periodic check
@@ -27,9 +27,9 @@ This has been done in `periodic_check_infected.periodic_new_infected_interaction
 
 ## Step 1 - Download repository
 Download repository (we will put it on ~/interaction-finder folder)
-```bash
+<!-- ```bash
 git clone https://gitlab.com/coronavirus-outbreak-control/interaction-finder ~/interaction-finder
-```
+``` -->
 
 ## Step 2 - Config.py
 Edit following constants in `/config.py` file:
@@ -66,7 +66,7 @@ systemctl start consumer-patients.service
 ```
 And automatically get it to start at boot:
 ```bash
-systmctl enable consumer-patients.service
+systemctl enable ~/interaction-finder/consumer-patients.service
 ```
 To test the system, simply type:
 ```bash

@@ -42,6 +42,8 @@ def get_sqs_patients_url():
 def get_sqs_notifications_url():
     return SQS_QUE_URL_NOTIFICATIONS
 
+def get_sqs_dead_letter_url():
+    return SQS_QUE_URL_DEAD_LETTERS
 
 def get_db_user():
     if len(sys.argv) > 1:
