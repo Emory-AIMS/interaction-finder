@@ -34,7 +34,9 @@ class CsvFormat(Enum):
     distance = 7
     latitude = 8
     longitude = 9
-    platform = 10
+    privacy_level = 10
+    platform = 11
+    
 
 
 def padding_zeroes(number, length_string):
@@ -72,7 +74,7 @@ def build_path_device(device_id):
     :return:
     """
     padding_device = PAIRS_SHINGLES_DEVICE * 2
-    s = padding_zeroes(int(int(device_id) / NUMBER_DEVICES), padding_device)
+    s = padding_zeroes(int(int(device_id) % NUMBER_DEVICES), padding_device)
     res = ''
     for i in range(0, padding_device, 2):
         res += s[i: i+2] + '/'
@@ -259,60 +261,62 @@ def select_s3_interactions(devices, filters, interactions_further=None, last_tim
     :return: dictionary where the key is the filter_id and the value is the list of interactions, unique_interactions
     """
 
-    file_names = list_files(devices, last_timestamp_filter=last_timestamp_filter, days_back=days_back)
-    """
-    filter_id2connections = {
-        filter_id: {
-            device_id: [interactions]
-        }
-    }
-    """
     filter_id2connections = {}
     all_interactions = set()
+    if len(devices) > 0:
+        file_names = list_files(devices, last_timestamp_filter=last_timestamp_filter, days_back=days_back)
+        """
+        filter_id2connections = {
+            filter_id: {
+                device_id: [interactions]
+            }
+        }
+        """
 
-    for fil in filters:
-        interactions = None
-        if interactions_further is not None and fil['filter_id'] in interactions_further:
-            interactions = interactions_further[fil['filter_id']]
-        query = build_query(devices, fil, interactions)
-        print('Iterating for filter', fil)
-        print(query)
-        # interactions = set()
-        interaction_id2_interactions = {}
-        print('gonna query {} files'.format(len(file_names)))
 
-        counter = 0
-        pool_size = config.get_number_processes()
-        processes = []
+        for fil in filters:
+            interactions = None
+            if interactions_further is not None and fil['filter_id'] in interactions_further:
+                interactions = interactions_further[fil['filter_id']]
+            query = build_query(devices, fil, interactions)
+            print('Iterating for filter', fil)
+            print(query)
+            # interactions = set()
+            interaction_id2_interactions = {}
+            print('gonna query {} files'.format(len(file_names)))
 
-        ## Define an empty pool whith maximal concurrent processes
-        pool = multiprocessing.Pool(processes=pool_size)
+            counter = 0
+            pool_size = config.get_number_processes()
+            processes = []
 
-        # PREPOPULATE PROCESSES
-        for i in range(0, min(pool_size, len(file_names))):
-            processes.append(pool.apply_async(query_file, args=(file_names[counter], query,)))
-            counter += 1
+            ## Define an empty pool whith maximal concurrent processes
+            pool = multiprocessing.Pool(processes=pool_size)
 
-        while True:
-            for ip in range(len(processes) - 1, -1, -1):
-                process = processes[ip]
-                if process.ready():
-                    # todo: sometimes the next process.get arise an error
-                    interaction_id2_interactions_partial, unique_interactions = process.get()
-                    all_interactions = all_interactions.union(unique_interactions)
-                    for iid, its in interaction_id2_interactions_partial.items():
-                        if iid not in interaction_id2_interactions:
-                            interaction_id2_interactions[iid] = []
-                        for item in its:
-                            interaction_id2_interactions[iid].append(item)
-                    processes.pop(ip)
-                    if counter >= len(file_names):
-                        continue
-                    processes.append(pool.apply_async(query_file, args=(file_names[counter], query,)))
-                    counter += 1
-            if len(processes) == 0:
-                break
-        filter_id2connections[fil['filter_id']] = interaction_id2_interactions
+            # PREPOPULATE PROCESSES
+            for i in range(0, min(pool_size, len(file_names))):
+                processes.append(pool.apply_async(query_file, args=(file_names[counter], query,)))
+                counter += 1
+
+            while True:
+                for ip in range(len(processes) - 1, -1, -1):
+                    process = processes[ip]
+                    if process.ready():
+                        # todo: sometimes the next process.get arise an error
+                        interaction_id2_interactions_partial, unique_interactions = process.get()
+                        all_interactions = all_interactions.union(unique_interactions)
+                        for iid, its in interaction_id2_interactions_partial.items():
+                            if iid not in interaction_id2_interactions:
+                                interaction_id2_interactions[iid] = []
+                            for item in its:
+                                interaction_id2_interactions[iid].append(item)
+                        processes.pop(ip)
+                        if counter >= len(file_names):
+                            continue
+                        processes.append(pool.apply_async(query_file, args=(file_names[counter], query,)))
+                        counter += 1
+                if len(processes) == 0:
+                    break
+            filter_id2connections[fil['filter_id']] = interaction_id2_interactions
 
     return filter_id2connections, list(all_interactions)
 
