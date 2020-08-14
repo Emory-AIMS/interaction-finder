@@ -71,6 +71,28 @@ def set_infected_devices(devices_infected, timestamp_infection, timestamp_analys
     get_connection().commit()
     close_connection()
 
+def set_healed(devices_infected, timestamp_healed, debug=False):
+    if debug:
+        return True
+
+    if len(devices_infected) < 1:
+        return True
+
+    values = ['(\'' + '\',\''.join([str(did),
+                        timestamp_healed.strftime(config.get_timestamp_format_string()),]) + '\')'
+              for did in devices_infected]
+    query = 'INSERT IGNORE INTO infected_devices (device_id, last_analysis_timestamp, healed_timestamp) VALUES {}'\
+        .format(','.join(values))
+    # print(values)
+    # print(query)
+    with get_connection().cursor() as cursor:
+        cursor.execute(query)
+    get_connection().commit()
+    close_connection()
+
+
+    
+
 
 if __name__ == "__main__":
     set_infected_devices([1, 2, 3], datetime.now(), datetime.now())

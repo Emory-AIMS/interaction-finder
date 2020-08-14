@@ -17,7 +17,7 @@ def polling_queue():
     """
 
     print('polling queue')
-    sqs_client = boto3.resource('sqs')
+    sqs_client = boto3.resource('sqs', region_name='us-west-1')
 
     queue_read = sqs_client.Queue(config.get_sqs_patients_url())
     queue_write = sqs_client.Queue(config.get_sqs_notifications_url())

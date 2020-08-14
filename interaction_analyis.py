@@ -35,8 +35,13 @@ def read_filters():
                 #     'min': 5
                 # },
                 # 'rounds': 3,
-                'language': 'it',
+                'language': 'en',
                 'content': {
+                    'en': {
+                        'title': 'New status update',
+                        'shortDescription': 'Open the app for more information.',
+                        'description': 'You have been near to someone who has tested positive to Coronavirus. Please self-quarantine at home..'
+                    }, 
                     'it': {
                         'title': 'Nuovo aggiornamento di stato',
                         'shortDescription': 'Apri l\'app per avere maggiori informazioni.',
@@ -83,23 +88,26 @@ def compute_messages(devices_infected, devices_healed, backup_messages_body, rou
                                                      last_timestamp_filter=last_timestamp_filter, debug=debug)
             send_messages_and_rounds(messages, filter_id_2_rounds, queue_notification, queue_infected, debug=debug)
 
-        print("GONNA ELABORATE MESSAGES infected", devices_infected)
+        # print("GONNA ELABORATE MESSAGES infected", devices_infected)
         # send messages to input devices
-        messages_infected = elaborate_input_devices(devices_infected, config.get_status_infected(), debug=debug)
-        for i in range(0, len(messages_infected), 50):
-            print(messages_infected[0])
-            if not debug:
-                queue_notification.send_message(MessageBody=json.dumps({'notifications': messages_infected[i:i + 50]}))
+        # messages_infected = elaborate_input_devices(devices_infected, config.get_status_infected(), debug=debug)
+        # for i in range(0, len(messages_infected), 50):
+        #     print(messages_infected[0])
+        #     if not debug:
+        #         queue_notification.send_message(MessageBody=json.dumps({'notifications': messages_infected[i:i + 50]}))
 
         print('GONNA save infected devices')
         mysql_handler.set_infected_devices(devices_infected, time_operation, time_operation, debug=debug)
 
-        print("GONNA ELABORATE MESSAGES healed", devices_healed)
-        messages_healed = elaborate_input_devices(devices_healed, config.get_status_healed(), debug=debug)
-        for i in range(0, len(messages_healed), 50):
-            print(messages_healed[0])
-            if not debug:
-                queue_notification.send_message(MessageBody=json.dumps({'notifications': messages_healed[i:i + 50]}))
+        # set healed timestamp
+        mysql_handler.set_infected_devices(devices_infected, time_operation, debug=debug)
+
+        # print("GONNA ELABORATE MESSAGES healed", devices_healed)
+        # messages_healed = elaborate_input_devices(devices_healed, config.get_status_healed(), debug=debug)
+        # for i in range(0, len(messages_healed), 50):
+        #     print(messages_healed[0])
+        #     if not debug:
+        #         queue_notification.send_message(MessageBody=json.dumps({'notifications': messages_healed[i:i + 50]}))
     except Exception as e:
         print('EXCEPTION', e)
         for b in backup_messages_body:
